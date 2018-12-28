@@ -1,0 +1,44 @@
+from configparser import ConfigParser
+import oandapyV20
+import oandapyV20.endpoints.accounts as accounts
+import ujson
+
+config = ConfigParser()
+config.read('oanda.ini')
+
+accountID = config.get('fxpractice','active_account')
+client = oandapyV20.API(access_token=config.get('fxpractice','token'))
+# r = positions.OpenPositions(accountID=config.get('fxpractice','active_account'))
+
+
+def read_json_file(filename):
+    """Accepts a file name and loads it as a json object.
+    Args:
+        filename   (str): Filename to be loaded.
+     //   path       (str): Directory path to use.
+    Returns:
+        obj: json object
+    """
+    result = []
+    try:
+        with open(filename , "r") as entry:
+            result = ujson.load(entry)
+    except IOError as ex:
+        print "I/O error({0}): {1}".format(ex.errno, ex.strerror)
+    else:
+        entry.close()
+        return result
+
+
+if __name__ == "__main__":
+
+    r = accounts.AccountDetails(accountID=config.get('fxpractice','active_account'))
+    client.request(r)
+    print r.response
+
+    with open('accountdetail.json', 'w') as outfile:
+        ujson.dump(r.response, outfile)
+
+    jk = read_json_file('accountdetail.json')
+    print ('jk=',jk)
+    print ('pause')
